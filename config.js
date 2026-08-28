@@ -7,11 +7,11 @@
    ============================================================ */
 
 /* Ссылка на веб-приложение Apps Script. Заканчивается на /exec */
-const GAS_URL = 'https://script.google.com/macros/s/ВАШ_ID_РАЗВЁРТЫВАНИЯ/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzfUEj4cJUn5Ff4xvUm7mW34-69xjI9Tpt4wGteFDiv8bbM0ORTYdXt8HdOZjvSS9pEcg/exec';
 
 /* Имя бота без «собаки» — им подписана кнопка «Войти через Telegram».
    Смотрится у @BotFather: /mybots → ваш бот → username */
-const TG_BOT_USERNAME = 'ВАШ_БОТ_bot';
+const TG_BOT_USERNAME = '@DSKnotes_bot';
 
 /* Необязательный промежуточный обработчик n8n.
    По умолчанию отключён: все запросы идут напрямую в Apps Script. */
