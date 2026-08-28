@@ -109,6 +109,7 @@ input:focus,select:focus,textarea:focus{outline:3px solid #F2B705;outline-offset
 .filters button{white-space:nowrap;padding:8px 12px;border:1px solid var(--line);background:none;
   font-family:var(--cond);font-size:13px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
 .filters button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.filters button.alert,.filters button.alert.on{background:#C9252D;color:#fff;border-color:#C9252D}
 .empty{text-align:center;color:var(--muted);padding:50px 20px;font-size:15px;line-height:1.5}
 .queue{background:#F2B705;color:#16181A;padding:10px 12px;font-size:14px;margin-bottom:12px}
 dialog{border:0;padding:0;width:min(92vw,420px);background:var(--surface)}
@@ -196,6 +197,7 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
   <!-- СПИСОК -->
   <section id="viewList" hidden>
     <div class="filters" id="filters">
+      <button data-f="date" id="dateFilter" hidden>Назначить дату</button>
       <button data-f="open" class="on">Открытые</button>
       <button data-f="check">На приёмке</button>
       <button data-f="svc">Моей службе</button>
@@ -571,10 +573,13 @@ $('#send').onclick = async () => {
 
 /* ---------- список ---------- */
 let items = [], filter = 'open';
+function selectFilter(next){
+  filter = next;
+  [...$('#filters').children].forEach(x => x.classList.toggle('on', x.dataset.f===next));
+}
 $('#filters').onclick = e => {
   const b = e.target.closest('button'); if(!b) return;
-  [...$('#filters').children].forEach(x => x.classList.toggle('on', x===b));
-  filter = b.dataset.f; paintList();
+  selectFilter(b.dataset.f); paintList();
 };
 async function load(){
   try{
@@ -599,7 +604,13 @@ function overdue(it){
 function paintList(){
   const box = $('#list');
   if (items === null){ box.innerHTML = '<div class="empty">Нет связи. Список появится, когда будет сеть.</div>'; return }
+  const waitingMine = items.filter(i =>
+    i.status==='Ждёт срока' && svcTo(i)===me?.svc);
+  const dateBtn = $('#dateFilter');
+  dateBtn.hidden = waitingMine.length === 0;
+  dateBtn.classList.toggle('alert', waitingMine.length > 0);
   let f = items;
+  if (filter==='date')  f = waitingMine;
   if (filter==='open')  f = items.filter(i => i.status==='Открыто');
   if (filter==='check') f = items.filter(i => i.status==='На приёмке');
   if (filter==='svc') f = items.filter(i =>
@@ -700,7 +711,7 @@ $('#dtSend').onclick = async () => {
   const btn = $('#dtSend'); btn.disabled = true; btn.textContent = 'Сохраняю…';
   try {
     await post({action:'setDate', token:TOKEN, id:dateId, date:val});
-    $('#dlgDate').close(); toast('Срок сохранён'); load();
+    $('#dlgDate').close(); toast('Срок сохранён'); selectFilter('svc'); load();
   } catch(e){ toast(e.message) }
   btn.textContent = 'Сохранить'; btn.disabled = false;
 };
