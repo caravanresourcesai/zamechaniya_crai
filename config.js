@@ -11,7 +11,7 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbzfUEj4cJUn5Ff4xvUm7mW3
 
 /* Имя бота без «собаки» — им подписана кнопка «Войти через Telegram».
    Смотрится у @BotFather: /mybots → ваш бот → username */
-const TG_BOT_USERNAME = '@DSKnotes_bot';
+const TG_BOT_USERNAME = 'DSKnotes_bot';
 
 /* Необязательный промежуточный обработчик n8n.
    По умолчанию отключён: все запросы идут напрямую в Apps Script. */
