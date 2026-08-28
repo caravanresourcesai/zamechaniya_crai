@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16181A">
+<title>Сотрудники — Замечания ДСК</title>
+<style>
+:root{
+  --bg:#E8E8E4; --surface:#FFFFFF; --ink:#16181A; --muted:#6B7075; --line:#C9C9C2;
+  --red:#C62828; --amber:#E0930B; --green:#2E7D32; --yellow:#F2B705;
+  --cond:'Arial Narrow','Roboto Condensed','Helvetica Neue',system-ui,sans-serif;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px}
+header{position:sticky;top:0;z-index:20;background:var(--ink);color:#fff;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 0}
+.htop{display:flex;align-items:baseline;gap:12px}
+h1{font-family:var(--cond);font-size:22px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;margin:0}
+.back{margin-left:auto;color:#A9AEB3;text-decoration:none;font-family:var(--cond);
+  font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+nav{display:flex;margin-top:10px}
+nav button{flex:1;background:none;border:0;border-bottom:3px solid transparent;color:#9AA0A6;
+  font-family:var(--cond);font-size:14px;letter-spacing:.08em;text-transform:uppercase;
+  padding:10px 6px;cursor:pointer;white-space:nowrap}
+nav button.on{color:#fff;border-bottom-color:var(--yellow)}
+nav button b{color:var(--yellow)}
+main{max-width:700px;margin:0 auto;padding:14px 12px 60px}
+label{display:block;font-family:var(--cond);font-size:13px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+input,select{width:100%;font-family:var(--sans);font-size:17px;color:var(--ink);
+  background:var(--surface);border:1px solid var(--line);border-radius:0;
+  padding:13px 12px;appearance:none}
+input:focus,select:focus{outline:3px solid var(--yellow);outline-offset:-1px}
+.big{width:100%;margin-top:18px;padding:16px;background:var(--ink);color:#fff;border:0;
+  font-family:var(--cond);font-size:17px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.big.ghost{background:none;color:var(--muted);border:1px solid var(--line);margin-top:8px}
+.card{background:var(--surface);border:1px solid var(--line);margin-bottom:10px}
+.card .row1{display:flex;align-items:center;gap:10px;padding:12px}
+.nm{flex:1;min-width:0}
+.nm b{display:block;font-size:17px;line-height:1.25;overflow-wrap:anywhere}
+.nm span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.badge{font-family:var(--cond);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 8px;color:#fff;background:var(--muted);white-space:nowrap}
+.b-teh{background:#12467F} .b-meh{background:#7A4A0B} .b-en{background:#5C1F6E}
+.b-off{background:var(--red)} .b-new{background:var(--amber);color:#16181A}
+.b-adm{background:var(--green)}
+.acts{display:flex;gap:8px;padding:0 12px 12px;flex-wrap:wrap}
+.acts button{flex:1;min-width:110px;padding:11px;border:1px solid var(--ink);
+  background:var(--surface);font-family:var(--cond);font-size:13px;letter-spacing:.06em;
+  text-transform:uppercase;cursor:pointer}
+.acts button.pri{background:var(--ink);color:#fff}
+.acts button.warn{border-color:var(--red);color:var(--red)}
+.empty{text-align:center;color:var(--muted);padding:44px 20px;font-size:15px;line-height:1.5}
+.note{background:#FDF3E0;color:#7A5A12;padding:12px;font-size:14px;line-height:1.45;
+  margin-bottom:12px}
+.code{font-family:var(--mono);font-size:30px;letter-spacing:.14em;text-align:center;
+  padding:18px;background:var(--ink);color:var(--yellow);margin:12px 0}
+dialog{border:0;padding:0;width:min(94vw,430px);background:var(--surface)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+.dlg{padding:16px}
+.dlg h3{font-family:var(--cond);font-size:19px;letter-spacing:.06em;text-transform:uppercase;
+  margin:0 0 4px}
+.hint{font-size:13px;color:var(--muted);line-height:1.45;margin:6px 0 0}
+.toast{position:fixed;left:12px;right:12px;bottom:20px;background:var(--ink);color:#fff;
+  padding:14px;font-size:15px;z-index:50;text-align:center}
+.dev{display:flex;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid #E6E6E1;
+  font-size:13px}
+.dev .d1{flex:1;min-width:0;color:var(--muted);overflow-wrap:anywhere}
+.dev button{padding:8px 10px;border:1px solid var(--red);background:none;color:var(--red);
+  font-family:var(--cond);font-size:12px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htop">
+    <h1>Сотрудники</h1>
+    <a class="back" href="index.html">← К замечаниям</a>
+  </div>
+  <nav id="tabs">
+    <button data-t="new" class="on">Заявки <b id="cntNew"></b></button>
+    <button data-t="all">Все</button>
+    <button data-t="off">Отключённые</button>
+  </nav>
+</header>
+
+<main>
+  <div id="view"><div class="empty">Загрузка…</div></div>
+  <button class="big" id="addBtn">Добавить вручную</button>
+</main>
+
+<!-- карточка сотрудника -->
+<dialog id="dlg">
+  <div class="dlg">
+    <h3 id="dTitle">Сотрудник</h3>
+    <p class="hint" id="dTg"></p>
+
+    <label>Фамилия, имя, отчество</label>
+    <input id="dName" placeholder="Мадиев Муратхан Серикович">
+
+    <label>Должность</label>
+    <select id="dRole">
+      <option>Мастер ДСК</option>
+      <option>Технолог ДСК</option>
+      <option>Механик</option>
+      <option>Слесарь</option>
+      <option>Энергетик</option>
+      <option>Электрослесарь</option>
+      <option>Начальник участка</option>
+    </select>
+
+    <label>Служба</label>
+    <select id="dSvc">
+      <option>Технологическая</option>
+      <option>Механическая</option>
+      <option>Энергетическая</option>
+    </select>
+
+    <label>Права</label>
+    <select id="dAccess">
+      <option>Сотрудник</option>
+      <option>Мастер</option>
+      <option>Админ</option>
+    </select>
+    <p class="hint">Мастер и админ могут вести этот справочник.
+      Обычный сотрудник — только подавать и закрывать замечания.</p>
+
+    <label>Доступ в систему</label>
+    <select id="dOn">
+      <option value="1">Разрешён</option>
+      <option value="0">Отключён</option>
+    </select>
+
+    <button class="big" id="dSave">Сохранить</button>
+    <button class="big ghost" id="dClose">Отмена</button>
+  </div>
+</dialog>
+
+<!-- выданный код -->
+<dialog id="dlgCode">
+  <div class="dlg">
+    <h3>Код для входа</h3>
+    <p class="hint">Одноразовый. Сгорает сразу после входа — если человек
+      сменит телефон, выдайте новый.</p>
+    <div class="code" id="codeVal"></div>
+    <button class="big" id="codeCopy">Скопировать</button>
+    <button class="big ghost" id="codeClose">Закрыть</button>
+  </div>
+</dialog>
+
+<script src="config.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const store = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)) } catch(e){ return null } }
+};
+const TOKEN = store.get('token');
+const esc = s => String(s==null?'':s).replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+let staff = [], tab = 'new', editing = null;
+
+function toast(t){
+  const d = document.createElement('div');
+  d.className='toast'; d.textContent=t; document.body.appendChild(d);
+  setTimeout(()=>d.remove(), 3000);
+}
+
+async function api(payload){
+  const r = await fetch(GAS_URL, {
+    method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(Object.assign({token:TOKEN}, payload))
+  });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Ошибка сервера');
+  return j;
+}
+
+const SVC_CLASS = {'Технологическая':'b-teh','Механическая':'b-meh','Энергетическая':'b-en'};
+
+async function load(){
+  if (!TOKEN) {
+    $('#view').innerHTML = '<div class="empty">Сначала войдите в приложении,<br>' +
+      'затем вернитесь на эту страницу.<br><br>' +
+      '<a href="index.html" style="color:var(--ink)">Перейти к замечаниям</a></div>';
+    return;
+  }
+  try {
+    staff = (await api({action:'staffList'})).staff || [];
+    paint();
+  } catch(e){
+    $('#view').innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
+  }
+}
+
+function paint(){
+  const isNew = s => s.access === 'Заявка' || (!s.role && !s.svc);
+  const cntNew = staff.filter(isNew).length;
+  $('#cntNew').textContent = cntNew ? '· ' + cntNew : '';
+
+  let list = staff;
+  if (tab === 'new') list = staff.filter(isNew);
+  if (tab === 'off') list = staff.filter(s => !s.on && !isNew(s));
+  if (tab === 'all') list = staff.filter(s => !isNew(s));
+
+  const box = $('#view');
+  if (!list.length){
+    box.innerHTML = '<div class="empty">' +
+      (tab === 'new' ? 'Новых заявок нет.<br>Здесь появятся те, кто нажал вход через телеграм.'
+       : tab === 'off' ? 'Отключённых нет.' : 'Список пуст.') + '</div>';
+    return;
+  }
+
+  const head = tab === 'new'
+    ? '<div class="note">Человек вошёл через телеграм, но ещё не подтверждён. ' +
+      'Укажите должность и службу — после этого он сможет работать.</div>' : '';
+
+  box.innerHTML = head + list.map(s => {
+    const isN = isNew(s);
+    const svcCls = SVC_CLASS[s.svc] || '';
+    return `<div class="card">
+      <div class="row1">
+        <div class="nm">
+          <b>${esc(s.name)}</b>
+          <span>${esc(s.role || 'должность не указана')}${s.devices ? ' · устройств: ' + s.devices : ''}</span>
+        </div>
+        ${isN ? '<span class="badge b-new">Заявка</span>'
+              : !s.on ? '<span class="badge b-off">Отключён</span>'
+              : `<span class="badge ${svcCls}">${esc((s.svc||'').slice(0,4))}.</span>`}
+        ${s.access === 'Админ' || s.access === 'Мастер'
+          ? `<span class="badge b-adm">${esc(s.access)}</span>` : ''}
+      </div>
+      <div class="acts">
+        <button class="pri" data-edit="${esc(s.tgId)}">${isN ? 'Подтвердить' : 'Изменить'}</button>
+        ${!isN ? `<button data-code="${esc(s.tgId)}">Код входа</button>` : ''}
+        ${s.devices ? `<button data-dev="${esc(s.tgId)}">Устройства</button>` : ''}
+      </div>
+      <div id="dev-${esc(s.tgId)}"></div>
+    </div>`;
+  }).join('');
+}
+
+$('#tabs').onclick = e => {
+  const b = e.target.closest('button'); if(!b) return;
+  [...$('#tabs').children].forEach(x => x.classList.toggle('on', x===b));
+  tab = b.dataset.t; paint();
+};
+
+$('#view').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if(!b) return;
+
+  if (b.dataset.edit) openEdit(b.dataset.edit);
+
+  if (b.dataset.code){
+    if (!confirm('Выдать одноразовый код для входа без телеграма?')) return;
+    b.disabled = true;
+    try {
+      const r = await api({action:'staffCode', tgId:b.dataset.code});
+      $('#codeVal').textContent = r.code;
+      $('#dlgCode').showModal();
+    } catch(err){ toast(err.message) }
+    b.disabled = false;
+  }
+
+  if (b.dataset.dev){
+    const box = document.getElementById('dev-' + b.dataset.dev);
+    if (box.innerHTML) { box.innerHTML = ''; return }
+    try {
+      const r = await api({action:'deviceList', tgId:b.dataset.dev});
+      box.innerHTML = (r.devices||[]).map(d => `<div class="dev">
+        <span class="d1">${esc(d.device || 'устройство')}<br>${esc(d.how)} · ${esc(d.created)}</span>
+        ${d.on ? `<button data-revoke="${esc(d.deviceId)}">Отвязать</button>`
+               : '<span class="badge b-off">Отвязано</span>'}
+      </div>`).join('') || '<div class="dev"><span class="d1">Устройств нет</span></div>';
+    } catch(err){ toast(err.message) }
+  }
+
+  if (b.dataset.revoke){
+    if (!confirm('Отвязать это устройство? Человек не сможет отправлять замечания, пока не войдёт заново.')) return;
+    b.disabled = true;
+    try { await api({action:'deviceRevoke', deviceId:b.dataset.revoke}); toast('Отвязано'); load() }
+    catch(err){ b.disabled = false; toast(err.message) }
+  }
+});
+
+/* ---------- карточка ---------- */
+const ROLE_SVC = {
+  'Мастер ДСК':'Технологическая', 'Технолог ДСК':'Технологическая',
+  'Начальник участка':'Технологическая',
+  'Механик':'Механическая', 'Слесарь':'Механическая',
+  'Энергетик':'Энергетическая', 'Электрослесарь':'Энергетическая'
+};
+$('#dRole').onchange = () => { $('#dSvc').value = ROLE_SVC[$('#dRole').value] || 'Технологическая' };
+
+function openEdit(tgId){
+  editing = staff.find(s => s.tgId === tgId) || {tgId:tgId, name:'', on:true};
+  $('#dTitle').textContent = editing.name || 'Новый сотрудник';
+  $('#dTg').textContent = editing.tgId ? 'Телеграм ID: ' + editing.tgId
+                                       : 'Без телеграма — вход только по коду';
+  $('#dName').value   = editing.name || '';
+  $('#dRole').value   = editing.role || 'Технолог ДСК';
+  $('#dSvc').value    = editing.svc  || ROLE_SVC[$('#dRole').value];
+  $('#dAccess').value = editing.access === 'Заявка' ? 'Сотрудник' : (editing.access || 'Сотрудник');
+  $('#dOn').value     = editing.on === false ? '0' : '1';
+  $('#dlg').showModal();
+}
+
+$('#addBtn').onclick = () => {
+  editing = {tgId:'', name:'', on:true};
+  $('#dTitle').textContent = 'Новый сотрудник';
+  $('#dTg').textContent = 'Без телеграма — вход только по коду';
+  $('#dName').value=''; $('#dRole').value='Технолог ДСК';
+  $('#dSvc').value='Технологическая'; $('#dAccess').value='Сотрудник'; $('#dOn').value='1';
+  $('#dlg').showModal();
+};
+
+$('#dClose').onclick = () => $('#dlg').close();
+
+$('#dSave').onclick = async () => {
+  const name = $('#dName').value.trim();
+  if (name.length < 3) { toast('Укажите фамилию и имя'); return }
+  const btn = $('#dSave'); btn.disabled = true; btn.textContent = 'Сохраняю…';
+  try {
+    await api({action:'staffSave', staff:{
+      tgId: editing.tgId || ('manual-' + Date.now()),
+      name: name, role: $('#dRole').value, svc: $('#dSvc').value,
+      access: $('#dAccess').value, on: $('#dOn').value === '1'
+    }});
+    $('#dlg').close(); toast('Сохранено'); load();
+  } catch(e){ toast(e.message) }
+  btn.disabled = false; btn.textContent = 'Сохранить';
+};
+
+$('#codeClose').onclick = () => $('#dlgCode').close();
+$('#codeCopy').onclick = () => {
+  navigator.clipboard.writeText($('#codeVal').textContent).then(
+    () => toast('Код скопирован'), () => toast('Скопируйте вручную'));
+};
+
+load();
+</script>
+</body>
+</html>

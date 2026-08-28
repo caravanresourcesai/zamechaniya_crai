@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Отчёт по замечаниям ДСК</title>
+<style>
+:root{
+  --bg:#E8E8E4; --surface:#FFFFFF; --ink:#16181A; --muted:#6B7075; --line:#C9C9C2;
+  --red:#C62828; --amber:#E0930B; --green:#2E7D32; --blue:#12467F; --yellow:#F2B705;
+  --cond:'Arial Narrow','Roboto Condensed','Helvetica Neue',system-ui,sans-serif;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px}
+header{position:sticky;top:0;z-index:20;background:var(--ink);color:#fff;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 0}
+.htop{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--cond);font-size:22px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;margin:0}
+.back{margin-left:auto;color:#A9AEB3;text-decoration:none;font-family:var(--cond);
+  font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+nav{display:flex;overflow-x:auto;margin-top:10px;gap:0}
+nav button{background:none;border:0;border-bottom:3px solid transparent;color:#9AA0A6;
+  font-family:var(--cond);font-size:14px;letter-spacing:.08em;text-transform:uppercase;
+  padding:10px 12px;cursor:pointer;white-space:nowrap}
+nav button.on{color:#fff;border-bottom-color:var(--yellow)}
+main{max-width:900px;margin:0 auto;padding:14px 12px 60px}
+
+/* фильтры */
+.bar{background:var(--surface);border:1px solid var(--line);padding:12px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.f{flex:1 1 140px}
+.f label{display:block;font-family:var(--cond);font-size:12px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+input,select{width:100%;font-family:var(--sans);font-size:15px;padding:9px 10px;
+  border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:0;appearance:none}
+.quick{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.quick button{padding:7px 11px;border:1px solid var(--line);background:none;cursor:pointer;
+  font-family:var(--cond);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.quick button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* KPI */
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+.k{background:var(--surface);border:1px solid var(--line);padding:12px;border-top:4px solid var(--ink)}
+.k.good{border-top-color:var(--green)} .k.bad{border-top-color:var(--red)}
+.k.warn{border-top-color:var(--amber)}
+.k b{display:block;font-family:var(--cond);font-size:34px;line-height:1;letter-spacing:.01em}
+.k span{display:block;font-family:var(--cond);font-size:12px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+/* таблицы и списки */
+.block{background:var(--surface);border:1px solid var(--line);margin-bottom:14px}
+.block h2{font-family:var(--cond);font-size:16px;letter-spacing:.09em;text-transform:uppercase;
+  margin:0;padding:11px 12px;background:var(--ink);color:#fff;font-weight:600}
+.block .in{padding:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-family:var(--cond);font-size:12px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #E6E6E1;vertical-align:top}
+tr:last-child td{border-bottom:0}
+.num{font-family:var(--mono);font-size:13px;white-space:nowrap}
+.pill{display:inline-block;font-family:var(--cond);font-size:11px;letter-spacing:.07em;
+  text-transform:uppercase;padding:2px 7px;color:#fff}
+.p-open{background:var(--red)} .p-check{background:var(--amber);color:#16181A}
+.p-wait{background:#12467F}
+.p-done{background:var(--green)}
+.late{color:var(--red);font-weight:600}
+.bar-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #E6E6E1}
+.bar-row:last-child{border-bottom:0}
+.bar-row .nm{flex:1;font-size:14px;min-width:0;overflow-wrap:anywhere}
+.bar-row .vis{width:38%;height:14px;background:#E6E6E1;flex-shrink:0}
+.bar-row .vis i{display:block;height:100%;background:var(--ink)}
+.bar-row .vl{width:56px;text-align:right;font-family:var(--mono);font-size:13px;flex-shrink:0}
+.rank{width:22px;font-family:var(--mono);font-size:13px;color:var(--muted);flex-shrink:0}
+.rep{padding:11px 12px;border-bottom:1px solid #E6E6E1}
+.rep:last-child{border-bottom:0}
+.rep .hd{display:flex;gap:10px;align-items:baseline}
+.rep .cnt{font-family:var(--cond);font-size:24px;line-height:1;color:var(--red);flex-shrink:0}
+.rep .obj{font-family:var(--cond);font-size:17px;letter-spacing:.03em;text-transform:uppercase}
+.rep .ex{font-size:14px;color:var(--muted);margin-top:5px;line-height:1.45}
+.rep .ids{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:5px}
+.tools{display:flex;gap:8px;padding:12px;flex-wrap:wrap}
+.tools button{padding:11px 14px;border:1px solid var(--ink);background:var(--surface);cursor:pointer;
+  font-family:var(--cond);font-size:13px;letter-spacing:.07em;text-transform:uppercase}
+.tools button.pri{background:var(--ink);color:#fff}
+.empty{padding:40px 16px;text-align:center;color:var(--muted);line-height:1.5}
+.hint{font-size:13px;color:var(--muted);line-height:1.45;padding:0 12px 12px}
+@media print{
+  header,nav,.bar,.tools,.back{display:none}
+  body{background:#fff} .block,.k{border-color:#999}
+  main{max-width:none;padding:0}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htop">
+    <h1>Отчёт по замечаниям</h1>
+    <a class="back" href="index.html">← К замечаниям</a>
+  </div>
+  <nav id="tabs">
+    <button data-t="fix" class="on">Устранение</button>
+    <button data-t="who">Кто выявляет</button>
+    <button data-t="node">Узлы</button>
+    <button data-t="plan">Сроки</button>
+    <button data-t="rep">Повторы</button>
+    <button data-t="exec">Исполнители</button>
+  </nav>
+</header>
+
+<main>
+  <div class="bar">
+    <div class="row">
+      <div class="f"><label>С даты</label><input type="date" id="d1"></div>
+      <div class="f"><label>По дату</label><input type="date" id="d2"></div>
+      <div class="f"><label>Объект</label><select id="fObj"><option value="">Все</option></select></div>
+      <div class="f"><label>Кому</label><select id="fWhom"><option value="">Все</option></select></div>
+    </div>
+    <div class="quick" id="quick">
+      <button data-d="7">Неделя</button>
+      <button data-d="30" class="on">Месяц</button>
+      <button data-d="90">Квартал</button>
+      <button data-d="0">Всё время</button>
+    </div>
+  </div>
+
+  <div class="kpi" id="kpi"></div>
+  <div id="view"><div class="empty">Загрузка данных…</div></div>
+
+  <div class="block">
+    <div class="tools">
+      <button class="pri" id="csv">Выгрузить CSV</button>
+      <button id="print">Печать</button>
+      <button id="reload">Обновить</button>
+    </div>
+    <p class="hint">CSV открывается в Excel. Данные берутся из той же таблицы,
+      куда пишет n8n, поэтому отчёт работает и когда n8n выключен.</p>
+  </div>
+</main>
+
+<script src="config.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+let all = [], tab = 'fix';
+
+/* ---------- загрузка ---------- */
+function parseRu(s){
+  if (!s) return null;
+  const m = String(s).match(/(\d{2})\.(\d{2})\.(\d{4})[ ,]+(\d{2}):(\d{2})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5]);
+  const d = new Date(s);                    // ISO из Google Таблицы
+  return isNaN(d.getTime()) ? null : d;
+}
+async function load(){
+  $('#view').innerHTML = '<div class="empty">Загрузка данных…</div>';
+  try {
+    const token = (() => { try { return JSON.parse(localStorage.getItem('token')) } catch(e){ return null } })();
+    if (!token) throw new Error('нет входа');
+    const r = await fetch(GAS_URL + '?action=list&token=' + encodeURIComponent(token));
+    const j = await r.json();
+    all = (j.items || []).map(i => Object.assign({}, i, {
+      dCreated: parseRu(i.created), dDue: parseRu(i.due),
+      dDone: parseRu(i.doneAt), dAcc: parseRu(i.acceptedAt || i.accepted)
+    }));
+    fillSelects();
+    render();
+  } catch(e){
+    $('#view').innerHTML = '<div class="empty">' + (e.message === 'нет входа'
+      ? 'Сначала войдите в приложении, затем вернитесь сюда.<br><br>' +
+        '<a href="index.html" style="color:var(--ink)">Перейти к замечаниям</a>'
+      : 'Не удалось получить данные. Проверьте GAS_URL в config.js.') + '</div>';
+  }
+}
+function fillSelects(){
+  const objs = [...new Set(all.map(i => i.obj).filter(Boolean))].sort();
+  const whom = [...new Set(all.map(i => i.whom).filter(Boolean))].sort();
+  const keep = (sel, list) => {
+    const v = sel.value;
+    sel.innerHTML = '<option value="">Все</option>';
+    list.forEach(x => sel.add(new Option(x, x)));
+    sel.value = v;
+  };
+  keep($('#fObj'), objs); keep($('#fWhom'), whom);
+}
+
+/* ---------- фильтр ---------- */
+function period(){
+  const a = $('#d1').value ? new Date($('#d1').value + 'T00:00') : null;
+  const b = $('#d2').value ? new Date($('#d2').value + 'T23:59') : null;
+  return [a, b];
+}
+function filtered(){
+  const [a, b] = period();
+  const o = $('#fObj').value, w = $('#fWhom').value;
+  return all.filter(i => {
+    if (a && (!i.dCreated || i.dCreated < a)) return false;
+    if (b && (!i.dCreated || i.dCreated > b)) return false;
+    if (o && i.obj !== o) return false;
+    if (w && i.whom !== w) return false;
+    return true;
+  });
+}
+$('#quick').onclick = e => {
+  const b = e.target.closest('button'); if(!b) return;
+  [...$('#quick').children].forEach(x => x.classList.toggle('on', x===b));
+  const d = +b.dataset.d;
+  if (!d){ $('#d1').value = ''; $('#d2').value = '' }
+  else {
+    const to = new Date(), from = new Date(Date.now() - d*24*3600*1000);
+    $('#d1').value = from.toISOString().slice(0,10);
+    $('#d2').value = to.toISOString().slice(0,10);
+  }
+  render();
+};
+['#d1','#d2','#fObj','#fWhom'].forEach(s => $(s).onchange = () => {
+  [...$('#quick').children].forEach(x => x.classList.remove('on'));
+  render();
+});
+$('#tabs').onclick = e => {
+  const b = e.target.closest('button'); if(!b) return;
+  [...$('#tabs').children].forEach(x => x.classList.toggle('on', x===b));
+  tab = b.dataset.t; render();
+};
+$('#reload').onclick = load;
+$('#print').onclick = () => window.print();
+
+/* ---------- расчёты ---------- */
+const esc = s => String(s==null?'':s).replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+/* дата к виду дд.мм.гггг чч:мм, откуда бы ни пришла */
+function show(v){
+  const d = parseRu(v); if (!d) return v || '';
+  const p = n => ('0'+n).slice(-2);
+  return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+const isDone = i => i.status === 'Закрыто';
+/* «Ждёт срока» — срок ещё не назначен, просрочкой не считается */
+const isLate = i => i.status === 'Открыто' && i.dDue && i.dDue < new Date();
+const isWait = i => i.status === 'Ждёт срока';
+const hours  = (a, b) => (b - a) / 3600000;
+
+function group(list, key){
+  const m = new Map();
+  list.forEach(i => {
+    const k = key(i); if (!k) return;
+    if (!m.has(k)) m.set(k, []);
+    m.get(k).push(i);
+  });
+  return [...m.entries()].sort((a,b) => b[1].length - a[1].length);
+}
+/* Повтор считается по паре «объект + узел».
+   Узел выбирается из справочника, поэтому это надёжный ключ:
+   «восстановить ролика опору» и «заменить роликоопору» попадут в одну группу,
+   хотя написаны разными людьми и разными словами. */
+function repeatKey(i){ return `${i.obj}|${i.node}` }
+
+/* ---------- отрисовка ---------- */
+function render(){
+  const list = filtered();
+  paintKpi(list);
+  const html = ({fix:viewFix, who:viewWho, node:viewNode, plan:viewPlan,
+                 rep:viewRep, exec:viewExec})[tab](list);
+  $('#view').innerHTML = html || '<div class="empty">За выбранный период данных нет.</div>';
+}
+
+function paintKpi(list){
+  const done = list.filter(isDone);
+  const late = list.filter(isLate);
+  const check = list.filter(i => i.status === 'На приёмке');
+  const pct = list.length ? Math.round(done.length / list.length * 100) : 0;
+  const durs = done.filter(i => i.dAcc && i.dCreated).map(i => hours(i.dCreated, i.dAcc));
+  const avg = durs.length ? (durs.reduce((a,b)=>a+b,0)/durs.length).toFixed(1) + ' ч' : '—';
+  const k = (v, l, cls) => `<div class="k ${cls||''}"><b>${v}</b><span>${l}</span></div>`;
+  const wait = list.filter(isWait);
+  const post = list.filter(i => (i.postponements || 0) > 0);
+  $('#kpi').innerHTML =
+    k(list.length, 'Подано') +
+    k(done.length, 'Устранено', 'good') +
+    k(list.length - done.length, 'Не устранено', 'bad') +
+    k(pct + '%', 'Доля устранения') +
+    k(late.length, 'Просрочено', late.length ? 'bad' : '') +
+    k(check.length, 'Ждут приёмки', 'warn') +
+    k(wait.length, 'Ждут срока', wait.length ? 'warn' : '') +
+    k(post.length, 'С переносами', post.length ? 'bad' : '') +
+    k(avg, 'Среднее до приёмки');
+}
+
+/* 1. Устранение */
+function viewFix(list){
+  if (!list.length) return '';
+  const rows = list.map(i => {
+    const st = isDone(i) ? 'done' : i.status === 'На приёмке' ? 'check'
+             : isWait(i) ? 'wait' : 'open';
+    const nm = isDone(i) ? 'Устранено' : i.status === 'На приёмке' ? 'На приёмке'
+             : isWait(i) ? 'Ждёт срока' : 'Не устранено';
+    return `<tr>
+      <td class="num">${esc(i.id)}</td>
+      <td>${esc(i.obj)}<br><span style="color:var(--muted);font-size:13px">${esc(i.node)}</span></td>
+      <td>${esc(i.desc)}</td>
+      <td class="num">${esc(show(i.created))}</td>
+      <td class="num ${isLate(i)?'late':''}">${i.due ? esc(show(i.due)) : '—'}${isLate(i)?'<br>просрочено':''}${(i.postponements||0) ? '<br>переносов: '+i.postponements : ''}</td>
+      <td><span class="pill p-${st}">${nm}</span>${i.executor?`<br><span style="font-size:13px">${esc(i.executor)}</span>`:''}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="block"><h2>Устранение — ${list.length} замечаний</h2>
+    <div style="overflow-x:auto"><table>
+      <tr><th>Номер</th><th>Объект / узел</th><th>Замечание</th><th>Подано</th><th>Срок</th><th>Статус</th></tr>
+      ${rows}</table></div></div>`;
+}
+
+/* 2. Кто выявляет */
+function viewWho(list){
+  const g = group(list, i => i.author);
+  if (!g.length) return '';
+  const max = g[0][1].length;
+  const rows = g.map(([name, arr], n) => {
+    const done = arr.filter(isDone).length;
+    const pct = Math.round(done / arr.length * 100);
+    return `<tr>
+      <td class="num">${n+1}</td>
+      <td>${esc(name)}<br><span style="color:var(--muted);font-size:13px">${esc(arr[0].authorRole||'')}</span></td>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="vis" style="width:90px;height:12px;background:#E6E6E1"><i style="display:block;height:100%;background:var(--ink);width:${arr.length/max*100}%"></i></div>
+        <b class="num">${arr.length}</b></div></td>
+      <td class="num">${done} · ${pct}%</td>
+      <td class="num ${arr.filter(isLate).length?'late':''}">${arr.filter(isLate).length}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="block"><h2>Кто выявляет замечания</h2>
+    <div style="overflow-x:auto"><table>
+      <tr><th>#</th><th>Автор</th><th>Подал</th><th>Из них устранено</th><th>Просрочено по ним</th></tr>
+      ${rows}</table></div>
+    <p class="hint">Столбец «просрочено» — не оценка автора, а сигнал по адресату:
+      замечание подано, но в срок не закрыто.</p></div>`;
+}
+
+/* 3. Узлы и объекты */
+function bars(g, total){
+  const max = g[0][1].length;
+  return g.slice(0, 20).map(([k, arr], n) => `<div class="bar-row">
+    <span class="rank">${n+1}</span>
+    <span class="nm">${esc(k)}</span>
+    <span class="vis"><i style="width:${arr.length/max*100}%"></i></span>
+    <span class="vl">${arr.length} · ${Math.round(arr.length/total*100)}%</span>
+  </div>`).join('');
+}
+function viewNode(list){
+  if (!list.length) return '';
+  const gn = group(list, i => i.node), go = group(list, i => i.obj);
+  return `<div class="block"><h2>Узлы — что выходит из строя чаще</h2>
+      <div class="in">${bars(gn, list.length)}</div></div>
+    <div class="block"><h2>Объекты</h2>
+      <div class="in">${bars(go, list.length)}</div></div>`;
+}
+
+/* 4. Сроки плановых */
+function viewPlan(list){
+  const plan = list.filter(i => i.critName === 'Плановое');
+  if (!plan.length) return '<div class="empty">Плановых замечаний за период нет.</div>';
+
+  const wait = plan.filter(isWait);
+  const post = plan.filter(i => (i.postponements || 0) > 0)
+                   .sort((a,b) => (b.postponements||0) - (a.postponements||0));
+
+  const days = i => i.dCreated ? Math.floor((new Date() - i.dCreated)/86400000) : 0;
+
+  let html = '';
+
+  if (wait.length){
+    html += `<div class="block"><h2>Ждут назначения срока — ${wait.length}</h2>
+      <div style="overflow-x:auto"><table>
+        <tr><th>Номер</th><th>Объект / узел</th><th>Кому</th><th>Ждёт</th></tr>
+        ${wait.sort((a,b) => days(b)-days(a)).map(i => `<tr>
+          <td class="num">${esc(i.id)}</td>
+          <td>${esc(i.obj)}<br><span style="color:var(--muted);font-size:13px">${esc(i.node)}</span></td>
+          <td>${esc(i.toSvc || i.whom)}</td>
+          <td class="num ${days(i) > 3 ? 'late' : ''}">${days(i)} сут.</td>
+        </tr>`).join('')}
+      </table></div>
+      <p class="hint">Служба-исполнитель ещё не поставила дату. Больше трёх суток —
+        попадает в утреннюю сводку.</p></div>`;
+  }
+
+  if (post.length){
+    html += `<div class="block"><h2>Переносы срока — ${post.length}</h2>
+      <div style="overflow-x:auto"><table>
+        <tr><th>Номер</th><th>Объект / узел</th><th>Текущий срок</th><th>Переносов</th></tr>
+        ${post.map(i => `<tr>
+          <td class="num">${esc(i.id)}</td>
+          <td>${esc(i.obj)}<br><span style="color:var(--muted);font-size:13px">${esc(i.node)}</span></td>
+          <td class="num">${i.due ? esc(show(i.due)) : '—'}</td>
+          <td class="num ${i.postponements > 2 ? 'late' : ''}">${i.postponements}</td>
+        </tr>`).join('')}
+      </table></div>
+      <p class="hint">Три переноса и больше — повод разобраться отдельно:
+        либо нет запчастей, либо работа не помещается в план ППР.</p></div>`;
+  }
+
+  if (!html) html = '<div class="empty">Все плановые замечания со сроком, переносов нет.</div>';
+  return html;
+}
+
+/* 5. Повторы */
+function viewRep(list){
+  const g = group(list, repeatKey).filter(([, arr]) => arr.length > 1);
+  if (!g.length) return '<div class="empty">Повторов за период нет.<br>Повтор — это один и тот же узел на одном объекте, попавший в замечания два раза и больше.</div>';
+  const rows = g.map(([, arr]) => {
+    const i = arr[0];
+    const openCnt = arr.filter(x => !isDone(x)).length;
+    const sorted = arr.slice().sort((a,b) => (b.dCreated||0) - (a.dCreated||0));
+    const lines = sorted.slice(0, 6).map(x =>
+      `<div style="display:flex;gap:8px;margin-top:4px">
+         <span class="num" style="flex-shrink:0;color:var(--muted)">${esc(show(x.created).split(' ')[0])}</span>
+         <span>${esc(x.desc)}</span>
+       </div>`).join('');
+    const more = arr.length > 6 ? `<div class="ids">… и ещё ${arr.length-6}</div>` : '';
+    return `<div class="rep">
+      <div class="hd"><span class="cnt">${arr.length}×</span>
+        <div><div class="obj">${esc(i.obj)}</div>
+          <div style="color:var(--muted);font-size:14px">${esc(i.node)}</div></div></div>
+      <div class="ex">${lines}${more}</div>
+      <div class="ids">Авторов: ${new Set(arr.map(x=>x.author)).size} · не устранено сейчас: ${openCnt}</div>
+    </div>`;
+  }).join('');
+  return `<div class="block"><h2>Повторяющиеся замечания — ${g.length} узлов</h2>${rows}
+    <p class="hint">Считается по паре «объект + узел»: узел выбирается из справочника,
+      поэтому разные формулировки одной и той же проблемы попадают в одну группу.
+      Верх списка — первые кандидаты в план ремонта и в заявку на запчасти:
+      узел чинят раз за разом, а причина остаётся.</p></div>`;
+}
+
+/* 6. Исполнители */
+function viewExec(list){
+  const g = group(list.filter(i => i.executor), i => i.executor);
+  if (!g.length) return '<div class="empty">За период никто не отмечал устранение.</div>';
+  const rows = g.map(([name, arr], n) => {
+    const acc = arr.filter(isDone);
+    const durs = acc.filter(i => i.dAcc && i.dCreated).map(i => hours(i.dCreated, i.dAcc));
+    const avg = durs.length ? (durs.reduce((a,b)=>a+b,0)/durs.length).toFixed(1) + ' ч' : '—';
+    return `<tr><td class="num">${n+1}</td><td>${esc(name)}</td>
+      <td class="num">${arr.length}</td><td class="num">${acc.length}</td>
+      <td class="num">${avg}</td></tr>`;
+  }).join('');
+  return `<div class="block"><h2>Кто устраняет</h2>
+    <div style="overflow-x:auto"><table>
+      <tr><th>#</th><th>Исполнитель</th><th>Отметил выполненными</th><th>Принято технологом</th><th>Среднее время</th></tr>
+      ${rows}</table></div></div>`;
+}
+
+/* ---------- CSV ---------- */
+$('#csv').onclick = () => {
+  const list = filtered();
+  const head = ['Номер','Создано','Автор','Служба автора','Должность','Кому','Объект','Узел',
+                'Замечание','Срочность','Срок','Переносов','Статус','Устранено',
+                'Исполнитель','Выполнено','Что сделано','Принял','Просрочено','Вход'];
+  const q = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
+  const rows = list.map(i => [i.id, i.created, i.author, i.fromSvc, i.authorRole, i.whom,
+    i.obj, i.node, i.desc, i.critName || i.crit, i.due, i.postponements || 0,
+    i.status, isDone(i)?'да':'нет', i.executor, i.doneAt, i.doneDesc, i.acceptedBy,
+    isLate(i)?'да':'нет', i.how || ''].map(q).join(';'));
+  const csv = '\uFEFF' + head.map(q).join(';') + '\n' + rows.join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+  a.download = 'zamechaniya-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+};
+
+/* старт: последний месяц */
+$('#d1').value = new Date(Date.now() - 30*24*3600*1000).toISOString().slice(0,10);
+$('#d2').value = new Date().toISOString().slice(0,10);
+load();
+</script>
+</body>
+</html>

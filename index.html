@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16181A">
+<title>Замечания ДСК</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{
+  --bg:#E8E8E4;
+  --surface:#FFFFFF;
+  --ink:#16181A;
+  --muted:#6B7075;
+  --line:#C9C9C2;
+  --red:#C62828;
+  --amber:#E0930B;
+  --green:#2E7D32;
+  --blue:#12467F;
+  --cond:'Arial Narrow','Roboto Condensed','Helvetica Neue',system-ui,sans-serif;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+header{
+  position:sticky;top:0;z-index:20;background:var(--ink);color:#fff;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 0;
+}
+.htop{display:flex;align-items:baseline;gap:10px}
+h1{font-family:var(--cond);font-size:22px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;margin:0}
+.who{margin-left:auto;font-size:12px;color:#A9AEB3;font-family:var(--mono)}
+.who b{color:#fff;font-weight:500}
+nav{display:flex;gap:0;margin-top:10px}
+nav a{text-decoration:none;display:flex;align-items:center;justify-content:center}
+nav button,nav a{
+  flex:1;background:none;border:0;border-bottom:3px solid transparent;color:#9AA0A6;
+  font-family:var(--cond);font-size:15px;letter-spacing:.08em;text-transform:uppercase;
+  padding:10px 4px;cursor:pointer
+}
+nav button.on{color:#fff;border-bottom-color:#F2B705}
+main{padding:14px 12px 90px;max-width:640px;margin:0 auto}
+label{display:block;font-family:var(--cond);font-size:13px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
+input,select,textarea{
+  width:100%;font-family:var(--sans);font-size:17px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);border-radius:0;padding:13px 12px;appearance:none
+}
+select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%2316181A' stroke-width='2' fill='none'/></svg>");
+  background-repeat:no-repeat;background-position:right 12px center}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:3px solid #F2B705;outline-offset:-1px}
+.seg{display:flex;gap:6px}
+.seg button{
+  flex:1;padding:13px 4px;border:1px solid var(--line);background:var(--surface);
+  font-family:var(--cond);font-size:14px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+.seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.seg.crit button[data-v="1"].on{background:var(--red);border-color:var(--red)}
+.seg.crit button[data-v="2"].on{background:var(--amber);border-color:var(--amber)}
+.seg.crit button[data-v="3"].on{background:var(--blue);border-color:var(--blue)}
+.photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.ph{position:relative;width:88px;height:88px;background:#D6D6D0;border:1px solid var(--line)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph b{position:absolute;top:-1px;right:-1px;background:var(--ink);color:#fff;width:26px;height:26px;
+  display:flex;align-items:center;justify-content:center;font-weight:400;cursor:pointer}
+.addph{width:88px;height:88px;border:1px dashed #9A9A93;background:none;font-family:var(--cond);
+  font-size:12px;letter-spacing:.05em;color:var(--muted);cursor:pointer;text-transform:uppercase;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.addph b{font-size:24px;line-height:1;font-weight:400;color:var(--ink)}
+.big{width:100%;margin-top:24px;padding:18px;background:var(--ink);color:#fff;border:0;
+  font-family:var(--cond);font-size:19px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.big:disabled{opacity:.45}
+.big.ok{background:var(--green)}
+.hint{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.45}
+
+/* карточка замечания — «бирка на оборудовании» */
+.card{background:var(--surface);border:1px solid var(--line);margin-bottom:12px}
+.tag{display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;padding:8px 12px}
+.tag .id{font-family:var(--mono);font-size:13px;letter-spacing:.05em}
+.tag .st{margin-left:auto;font-family:var(--cond);font-size:12px;letter-spacing:.09em;
+  text-transform:uppercase;padding:3px 8px}
+.st.open{background:var(--red)}
+.st.check{background:var(--amber);color:#16181A}
+.st.wait{background:#12467F}
+.st.done{background:var(--green)}
+.card .body{padding:12px;border-left:6px solid transparent}
+.card.c1 .body{border-left-color:var(--red)}
+.card.c2 .body{border-left-color:var(--amber)}
+.card.c3 .body{border-left-color:var(--blue)}
+.obj{font-family:var(--cond);font-size:19px;letter-spacing:.03em;text-transform:uppercase;margin:0 0 2px}
+.node{font-size:14px;color:var(--muted);margin-bottom:8px}
+.desc{font-size:16px;line-height:1.45;margin:0 0 10px}
+.meta{font-size:12px;color:var(--muted);font-family:var(--mono);line-height:1.7}
+.overdue{color:var(--red);font-weight:600}
+.thumbs{display:flex;gap:6px;margin:8px 0}
+.thumbs-i{width:64px;height:64px;border:1px solid var(--line);background:#D6D6D0 center/cover;display:block}
+.act{display:flex;gap:8px;padding:0 12px 12px}
+.act button{flex:1;padding:13px;border:1px solid var(--ink);background:var(--surface);
+  font-family:var(--cond);font-size:14px;letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
+.act button.pri{background:var(--ink);color:#fff}
+.wait{padding:10px 12px;background:#FDF3E0;border-top:1px solid #E6E6E1;
+  font-size:13px;color:#7A5A12}
+.filters{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px}
+.filters button{white-space:nowrap;padding:8px 12px;border:1px solid var(--line);background:none;
+  font-family:var(--cond);font-size:13px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.filters button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.empty{text-align:center;color:var(--muted);padding:50px 20px;font-size:15px;line-height:1.5}
+.queue{background:#F2B705;color:#16181A;padding:10px 12px;font-size:14px;margin-bottom:12px}
+dialog{border:0;padding:0;width:min(92vw,420px);background:var(--surface)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+.dlg{padding:16px}
+.dlg h3{font-family:var(--cond);font-size:18px;letter-spacing:.06em;text-transform:uppercase;margin:0 0 4px}
+.gate{position:fixed;inset:0;z-index:100;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:20px}
+.gbox{max-width:380px;width:100%;background:var(--surface);border:1px solid var(--line);
+  padding:26px 22px}
+.glogo{font-family:var(--cond);font-size:26px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:12px}
+.ghint{font-size:14px;color:var(--muted);line-height:1.5;margin:0 0 20px}
+.gmsg{margin-top:14px;padding:12px;background:#FDF3E0;color:#7A5A12;font-size:14px;line-height:1.45}
+.gmsg.err{background:#FCE9E9;color:#8B1A1A}
+.glink{display:block;width:100%;margin-top:18px;padding:12px;background:none;
+  border:1px solid var(--line);font-family:var(--cond);font-size:14px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);cursor:pointer}
+#codeBox{margin-top:14px}
+.toast{position:fixed;left:12px;right:12px;bottom:20px;background:var(--ink);color:#fff;
+  padding:14px;font-size:15px;z-index:50;text-align:center}
+@media (prefers-reduced-motion:no-preference){.toast{animation:up .2s ease-out}}
+@keyframes up{from{transform:translateY(20px);opacity:0}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htop">
+    <h1>Замечания ДСК</h1>
+    <div class="who" id="who"></div>
+  </div>
+  <nav>
+    <button id="tabNew" class="on">Новое</button>
+    <button id="tabList">Список</button>
+    <a id="tabReport" href="otchet.html">Отчёт</a>
+    <a id="tabAdmin" href="sotrudniki.html" hidden>Люди</a>
+  </nav>
+</header>
+
+<main>
+  <!-- ФОРМА -->
+  <section id="viewNew">
+    <div id="qBanner" class="queue" hidden></div>
+
+    <label>Группа</label>
+    <select id="grp"></select>
+
+    <label>Объект</label>
+    <select id="obj"></select>
+
+    <label>Узел / место</label>
+    <select id="node"></select>
+
+    <label>Кому</label>
+    <div class="seg" id="toWhom">
+      <button data-v="Механикам" class="on">Механикам</button>
+      <button data-v="Энергетикам">Энергетикам</button>
+      <button data-v="Технологам">Технологам</button>
+    </div>
+
+    <label>Что не так</label>
+    <textarea id="desc" placeholder="Коротко: что обнаружено и что требуется"></textarea>
+
+    <label>Срочность</label>
+    <div class="seg crit" id="crit">
+      <button data-v="1">Стоп-линия</button>
+      <button data-v="2" class="on">До конца смены</button>
+      <button data-v="3">Плановое</button>
+    </div>
+
+    <label>Фото — до 3</label>
+    <div class="photos" id="photos">
+      <button class="addph" id="addph"><b>+</b>Снять</button>
+      <button class="addph" id="addgal"><b>&#8681;</b>Галерея</button>
+    </div>
+    <input type="file" id="file" accept="image/*" capture="environment" hidden>
+    <input type="file" id="fileGal" accept="image/*" multiple hidden>
+
+    <button class="big" id="send">Отправить замечание</button>
+    <p class="hint" id="hint"></p>
+  </section>
+
+  <!-- СПИСОК -->
+  <section id="viewList" hidden>
+    <div class="filters" id="filters">
+      <button data-f="open" class="on">Открытые</button>
+      <button data-f="check">На приёмке</button>
+      <button data-f="svc">Моей службе</button>
+      <button data-f="all">Все</button>
+    </div>
+    <div id="list"><div class="empty">Загрузка…</div></div>
+  </section>
+</main>
+
+<!-- экран входа -->
+<div id="gate" class="gate" hidden>
+  <div class="gbox">
+    <div class="glogo">ЗАМЕЧАНИЯ ДСК</div>
+    <p class="ghint">Вход по рабочему телеграму. Один раз — дальше приложение
+      помнит вас и работает без связи.</p>
+    <div id="tgBtn"></div>
+    <div id="gMsg" class="gmsg" hidden></div>
+    <button class="glink" id="byCode">Войти по коду от мастера</button>
+    <div id="codeBox" hidden>
+      <label>Код доступа</label>
+      <input id="codeInp" inputmode="numeric" placeholder="6 цифр">
+      <button class="big" id="codeGo">Войти</button>
+    </div>
+  </div>
+</div>
+
+<!-- диалог: закрытие -->
+<dialog id="dlgClose">
+  <div class="dlg">
+    <h3 id="clTitle">Отметить выполненным</h3>
+    <p class="hint">Фото после устранения обязательно — по нему технолог принимает работу.</p>
+    <label>Что сделано</label>
+    <textarea id="clDesc" placeholder="Например: роликоопора заменена, опора приварена"></textarea>
+    <label>Фото — до 3</label>
+    <div class="photos" id="clPhotos">
+      <button class="addph" id="clAdd"><b>+</b>Снять</button>
+      <button class="addph" id="clGal"><b>&#8681;</b>Галерея</button>
+    </div>
+    <input type="file" id="clFile" accept="image/*" capture="environment" hidden>
+    <input type="file" id="clFileGal" accept="image/*" multiple hidden>
+    <button class="big" id="clSend" disabled>Отправить</button>
+    <button class="big" id="clCancel" style="background:none;color:var(--muted);margin-top:8px">Отмена</button>
+  </div>
+</dialog>
+
+<!-- диалог: назначить / перенести дату планового -->
+<dialog id="dlgDate">
+  <div class="dlg">
+    <h3 id="dtTitle">Назначить дату</h3>
+    <p class="hint">Замечание плановое. Дату ставит служба-исполнитель —
+      технолог её не назначает.</p>
+    <label>Дата устранения</label>
+    <input type="date" id="dtInput">
+    <button class="big" id="dtSend">Сохранить</button>
+    <button class="big" id="dtCancel" style="background:none;color:var(--muted);margin-top:8px">Отмена</button>
+  </div>
+</dialog>
+
+<script src="config.js"></script>
+<script src="objects.js"></script>
+<script>
+/* ---------- утилиты ---------- */
+const $ = s => document.querySelector(s);
+const store = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)) } catch(e){ return null } },
+  set: (k,v) => localStorage.setItem(k, JSON.stringify(v))
+};
+function toast(t){
+  const d = document.createElement('div');
+  d.className='toast'; d.textContent=t; document.body.appendChild(d);
+  setTimeout(()=>d.remove(), 3200);
+}
+function esc(s){ return String(s||'').replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) }
+function requestId(){
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'req-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+}
+
+/* сжатие фото до 1280px / jpeg 0.7 — чтобы уходило по слабой связи */
+function compress(file){
+  return new Promise((res,rej)=>{
+    const img = new Image();
+    img.onload = () => {
+      const max = 1280;
+      let {width:w, height:h} = img;
+      if (Math.max(w,h) > max){ const k = max/Math.max(w,h); w=Math.round(w*k); h=Math.round(h*k) }
+      const c = document.createElement('canvas'); c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      res(c.toDataURL('image/jpeg', 0.7));
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/* ---------- кто я ---------- */
+/* Должность → служба по умолчанию */
+const ROLE_SVC = {
+  'Мастер ДСК':'Технологическая', 'Технолог ДСК':'Технологическая',
+  'Начальник участка':'Технологическая',
+  'Механик':'Механическая', 'Слесарь':'Механическая',
+  'Энергетик':'Энергетическая', 'Электрослесарь':'Энергетическая'
+};
+/* Адресат → служба */
+const WHOM_SVC = {
+  'Механикам':'Механическая', 'Энергетикам':'Энергетическая', 'Технологам':'Технологическая'
+};
+const svcOfRole = r => ROLE_SVC[r] || 'Технологическая';
+const svcTo     = i => i.toSvc   || WHOM_SVC[i.whom] || i.whom;
+const svcFrom   = i => i.fromSvc || svcOfRole(i.authorRole);
+
+/* ---------- вход ---------- */
+let TOKEN = store.get('token');
+let me = store.get('me');
+
+function deviceName(){
+  const ua = navigator.userAgent;
+  const m = ua.match(/\((.*?)\)/);
+  return (m ? m[1] : ua).slice(0, 60);
+}
+function gateMsg(text, isErr){
+  const b = $('#gMsg');
+  b.hidden = !text; b.textContent = text || '';
+  b.classList.toggle('err', !!isErr);
+}
+function openGate(){ $('#gate').hidden = false }
+function closeGate(){ $('#gate').hidden = true }
+
+/* телеграм зовёт эту функцию после подтверждения входа */
+window.onTelegramAuth = async function(user){
+  gateMsg('Проверяем…');
+  try {
+    const r = await send(GAS_URL, {action:'authTelegram', tg:user, device:deviceName()});
+    saveSession(r);
+  } catch(e){ gateMsg(e.message, true) }
+};
+
+function saveSession(r){
+  TOKEN = r.token; me = r.profile;
+  store.set('token', TOKEN); store.set('me', me);
+  paintWho(); closeGate(); flushQueue();
+}
+
+$('#byCode').onclick = () => {
+  const b = $('#codeBox');
+  b.hidden = !b.hidden;
+  if (!b.hidden) $('#codeInp').focus();
+};
+$('#codeGo').onclick = async () => {
+  const code = $('#codeInp').value.trim();
+  if (code.length < 4) { gateMsg('Введите код полностью', true); return }
+  gateMsg('Проверяем…');
+  try {
+    const r = await send(GAS_URL, {action:'authCode', code:code, device:deviceName()});
+    saveSession(r);
+  } catch(e){ gateMsg(e.message, true) }
+};
+
+/* кнопка телеграма подставляется скриптом самого телеграма */
+(function initTgButton(){
+  if (typeof TG_BOT_USERNAME === 'undefined' || TG_BOT_USERNAME.indexOf('ВАШ') === 0) {
+    $('#tgBtn').innerHTML = '<p class="ghint">Кнопка телеграма не настроена: ' +
+      'укажите TG_BOT_USERNAME в config.js</p>';
+    return;
+  }
+  const sc = document.createElement('script');
+  sc.async = true;
+  sc.src = 'https://telegram.org/js/telegram-widget.js?22';
+  sc.setAttribute('data-telegram-login', TG_BOT_USERNAME);
+  sc.setAttribute('data-size', 'large');
+  sc.setAttribute('data-onauth', 'onTelegramAuth(user)');
+  sc.setAttribute('data-request-access', 'write');
+  $('#tgBtn').appendChild(sc);
+})();
+
+/* без токена работать нельзя */
+if (!TOKEN) openGate();
+
+function paintWho(){
+  $('#who').innerHTML = me
+    ? `<b>${esc(me.name)}</b><br>${esc(me.svc)} служба`
+    : 'вход не выполнен';
+  const link = $('#tabAdmin');
+  if (link) link.hidden = !me || (me.access !== 'Мастер' && me.access !== 'Админ');
+}
+/* ФИО и служба приходят из справочника — руками их не поменять */
+$('#who').onclick = () => {
+  if (!me) { openGate(); return }
+  const ok = confirm(`${me.name}\n${me.role} · ${me.svc} служба\n` +
+    `Вход: ${me.how}\n\nВыйти из системы на этом устройстве?`);
+  if (!ok) return;
+  const q = store.get('queue') || [];
+  if (q.length && !confirm(`Внимание: ${q.length} замечаний ещё не отправлены. ` +
+      `После выхода они пропадут. Всё равно выйти?`)) return;
+  localStorage.removeItem('token'); localStorage.removeItem('me');
+  localStorage.removeItem('queue');
+  TOKEN = null; me = null; paintWho(); openGate();
+};
+paintWho();
+
+/* ---------- справочники: группа -> объект -> узел ---------- */
+const grpSel = $('#grp'), objSel = $('#obj'), nodeSel = $('#node');
+GROUPS.forEach(g => grpSel.add(new Option(g, g)));
+
+function fillObjects(){
+  const list = OBJECTS.filter(o => o.group === grpSel.value);
+  objSel.innerHTML = '';
+  list.forEach(o => objSel.add(new Option(o.name, o.name)));
+  fillNodes();
+}
+function fillNodes(){
+  const o = OBJECTS.find(x => x.name === objSel.value) || OBJECTS[0];
+  nodeSel.innerHTML = '';
+  (NODES[o.type] || []).forEach(n => nodeSel.add(new Option(n, n)));
+  nodeSel.add(new Option('Другое', 'Другое'));
+}
+grpSel.onchange = fillObjects;
+objSel.onchange = fillNodes;
+fillObjects();
+
+/* ---------- сегменты ---------- */
+function seg(id){
+  const box = $(id);
+  box.onclick = e => {
+    const b = e.target.closest('button'); if(!b) return;
+    [...box.children].forEach(x => x.classList.toggle('on', x===b));
+  };
+  return () => box.querySelector('.on').dataset.v;
+}
+const getWhom = seg('#toWhom'), getCrit = seg('#crit');
+
+/* ---------- фото формы ---------- */
+/* Два источника: камера и галерея. Из галереи можно отметить сразу несколько,
+   лишние сверх трёх отсекаются. */
+function photoBox(boxSel, camInp, camBtn, galInp, galBtn){
+  const box = $(boxSel), cam = $(camInp), gal = $(galInp);
+  const bCam = $(camBtn), bGal = $(galBtn);
+  let list = [];
+
+  const paint = () => {
+    box.querySelectorAll('.ph').forEach(n => n.remove());
+    list.forEach((src,i) => {
+      const d = document.createElement('div'); d.className='ph';
+      d.innerHTML = `<img src="${src}"><b data-i="${i}">×</b>`;
+      box.insertBefore(d, bCam);
+    });
+    const full = list.length >= 3;
+    bCam.hidden = full; bGal.hidden = full;
+    box.dispatchEvent(new Event('changed'));
+  };
+
+  bCam.onclick = () => cam.click();
+  bGal.onclick = () => gal.click();
+  box.onclick = e => { if(e.target.tagName==='B' && e.target.dataset.i!==undefined){
+    list.splice(+e.target.dataset.i,1); paint() } };
+
+  const take = async inp => {
+    const files = [...inp.files]; inp.value = '';
+    if (!files.length) return;
+    const free = 3 - list.length;
+    if (free <= 0) { toast('Уже 3 фото — удалите лишнее'); return }
+    if (files.length > free) toast(`Добавлено ${free} из ${files.length} — предел 3 фото`);
+    for (const f of files.slice(0, free)) {
+      try { list.push(await compress(f)) } catch(e){ toast('Не удалось прочитать фото') }
+    }
+    paint();
+  };
+  cam.onchange = () => take(cam);
+  gal.onchange = () => take(gal);
+
+  return { get: () => list, clear: () => { list=[]; paint() }, box };
+}
+const fPhotos = photoBox('#photos','#file','#addph','#fileGal','#addgal');
+const cPhotos = photoBox('#clPhotos','#clFile','#clAdd','#clFileGal','#clGal');
+
+/* ---------- отправка + очередь ---------- */
+async function send(url, payload, ms){
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), ms || 20000);
+  try {
+    const r = await fetch(url, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'}, // без preflight
+      body: JSON.stringify(payload),
+      signal: ctl.signal
+    });
+    const j = await r.json();
+    if (!j.ok) {
+      const err = new Error(j.error || 'Ошибка сервера');
+      err.isApi = true;
+      throw err;
+    }
+    return j;
+  } finally { clearTimeout(t) }
+}
+
+/* Основной путь — n8n. Не ответил — тот же запрос уходит в Apps Script. */
+async function post(payload){
+  if (USE_N8N) {
+    try {
+      const j = await send(N8N_URL, payload, N8N_TIMEOUT);
+      j.via = 'n8n';
+      return j;
+    } catch(e){
+      console.warn('n8n недоступен, работаем через Apps Script:', e.message);
+    }
+  }
+  const j = await send(GAS_URL, payload);
+  j.via = 'gas';
+  return j;
+}
+function queueAdd(p){
+  const q = store.get('queue')||[];
+  q.push(p);
+  try { store.set('queue', q); paintQueue(); return true }
+  catch(e){ toast('Не хватает памяти телефона для офлайн-сохранения'); return false }
+}
+function paintQueue(){
+  const q = store.get('queue')||[];
+  const b = $('#qBanner');
+  b.hidden = !q.length;
+  b.textContent = q.length ? `Не отправлено: ${q.length}. Уйдёт, как появится связь.` : '';
+}
+async function flushQueue(){
+  let q = store.get('queue')||[];
+  if (!q.length || !navigator.onLine || !TOKEN) return;
+  const rest = [];
+  for (const p of q){
+    p.token = TOKEN;                    // токен подставляем свежий
+    try { await post(p) }
+    catch(e){
+      const authError = /не вошли|Устройство не найдено|отозван|отключён/i.test(e.message);
+      if (!e.isApi || authError) rest.push(p);
+      else console.warn('Отложенный запрос отклонён сервером:', e.message);
+    }
+  }
+  store.set('queue', rest); paintQueue();
+  if (q.length && !rest.length) toast('Отложенные замечания отправлены');
+}
+window.addEventListener('online', flushQueue);
+paintQueue(); flushQueue();
+
+/* ---------- создание ---------- */
+$('#send').onclick = async () => {
+  const desc = $('#desc').value.trim();
+  if (desc.length < 5) { toast('Опишите, что не так'); return }
+  const payload = {
+    action:'create', token: TOKEN,
+    clientRequestId: requestId(),
+    obj: objSel.value, node: nodeSel.value,
+    whom: getWhom(), crit: +getCrit(), desc,
+    photos: fPhotos.get()
+  };
+  const btn = $('#send'); btn.disabled = true; btn.textContent = 'Отправляю…';
+  try {
+    const r = await post(payload);
+    btn.textContent = 'Отправлено ' + r.id; btn.classList.add('ok');
+    $('#desc').value=''; fPhotos.clear();
+    setTimeout(()=>{ btn.textContent='Отправить замечание'; btn.classList.remove('ok'); btn.disabled=false }, 2500);
+  } catch(e){
+    if (/не вошли|Устройство не найдено|отозван|отключён/i.test(e.message)) {
+      btn.textContent='Отправить замечание'; btn.disabled=false;
+      openGate(); gateMsg(e.message, true); return;
+    }
+    const saved = !e.isApi && queueAdd(payload);
+    if (saved) { $('#desc').value=''; fPhotos.clear() }
+    btn.textContent='Отправить замечание'; btn.disabled=false;
+    if (saved) toast('Нет связи — сохранено на телефоне');
+    else if (e.isApi) toast(e.message);
+  }
+};
+
+/* ---------- список ---------- */
+let items = [], filter = 'open';
+$('#filters').onclick = e => {
+  const b = e.target.closest('button'); if(!b) return;
+  [...$('#filters').children].forEach(x => x.classList.toggle('on', x===b));
+  filter = b.dataset.f; paintList();
+};
+async function load(){
+  try{
+    const r = await fetch(GAS_URL + '?action=list&token=' + encodeURIComponent(TOKEN||''));
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Ошибка сервера');
+    items = j.items || [];
+  } catch(e){ items = null }
+  paintList();
+}
+function parseRu(s){
+  if (!s) return null;
+  const m = String(s).match(/(\d{2})\.(\d{2})\.(\d{4})[ ,]+(\d{2}):(\d{2})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5]);
+  const d = new Date(s);                    // ISO из Google Таблицы
+  return isNaN(d.getTime()) ? null : d;
+}
+function overdue(it){
+  const d = parseRu(it.due);
+  return it.status==='Открыто' && d && d < new Date();   // «Ждёт срока» просрочкой не считается
+}
+function paintList(){
+  const box = $('#list');
+  if (items === null){ box.innerHTML = '<div class="empty">Нет связи. Список появится, когда будет сеть.</div>'; return }
+  let f = items;
+  if (filter==='open')  f = items.filter(i => i.status==='Открыто');
+  if (filter==='check') f = items.filter(i => i.status==='На приёмке');
+  if (filter==='svc') f = items.filter(i =>
+    (i.status==='Открыто'    && svcTo(i)   === me?.svc) ||
+    (i.status==='На приёмке' && svcFrom(i) === me?.svc));
+  if (!f.length){ box.innerHTML = '<div class="empty">Пусто. Замечаний в этой выборке нет.</div>'; return }
+  box.innerHTML = f.map(it => {
+    const st = it.status==='Ждёт срока' ? 'wait'
+             : it.status==='Открыто'    ? 'open'
+             : it.status==='На приёмке' ? 'check' : 'done';
+    const ph = (it.photos||[]).map(u => `<a class="thumbs-i" href="${u}" target="_blank" style="background-image:url('${u}')"></a>`).join('');
+    /* закрывает любой из службы-адресата, принимает любой из службы автора */
+    const canDo   = it.status==='Открыто'    && svcTo(it)   === me?.svc;
+    const canAcc  = it.status==='На приёмке' && svcFrom(it) === me?.svc;
+    const canDate = it.status==='Ждёт срока' && svcTo(it)   === me?.svc;
+    const wait    = it.status==='На приёмке' && !canAcc;
+    return `<div class="card c${it.crit}">
+      <div class="tag"><span class="id">${esc(it.id)}</span>
+        <span>${esc(svcTo(it))} служба</span>
+        <span class="st ${st}">${esc(it.status)}</span></div>
+      <div class="body">
+        <p class="obj">${esc(it.obj)}</p>
+        <div class="node">${esc(it.node)}</div>
+        <p class="desc">${esc(it.desc)}</p>
+        ${ph ? `<div class="thumbs">${ph}</div>` : ''}
+        <div class="meta">
+          ${esc(it.author)} · ${esc(svcFrom(it))} служба · ${esc(it.created)}<br>
+          Срок: <span class="${overdue(it)?'overdue':''}">${it.due ? esc(it.due) : 'назначает служба-исполнитель'}${overdue(it)?' — просрочено':''}</span>
+          ${it.postponements ? `<br>Переносов срока: ${it.postponements}` : ''}
+          ${it.executor ? `<br>Выполнил: ${esc(it.executor)} · ${esc(it.doneAt)}` : ''}
+          ${it.doneDesc ? `<br>${esc(it.doneDesc)}` : ''}
+          ${it.acceptedBy ? `<br>Принял: ${esc(it.acceptedBy)}` : ''}
+        </div>
+      </div>
+      ${wait ? `<div class="wait">Ждёт приёмки: ${esc(svcFrom(it))} служба</div>` : ''}
+      ${canDo || canAcc || canDate ? `<div class="act">
+        ${canDate ? `<button class="pri" data-date="${esc(it.id)}">Назначить дату</button>`:''}
+        ${canDo ? `<button class="pri" data-done="${esc(it.id)}">Выполнено</button>`:''}
+        ${canAcc ? `<button class="pri" data-acc="${esc(it.id)}">Принять</button>
+                    <button data-rej="${esc(it.id)}">Вернуть</button>`:''}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+document.querySelector('#list').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if (b.dataset.done) openClose(b.dataset.done);
+  if (b.dataset.acc){
+    b.disabled = true;
+    try { await post({action:'accept', token:TOKEN, id:b.dataset.acc}); toast('Принято'); load() }
+    catch(err){ b.disabled=false; toast(err.message) }
+  }
+  if (b.dataset.date){
+    const it = items.find(x => x.id === b.dataset.date);
+    openDate(b.dataset.date, it && it.due);
+  }
+  if (b.dataset.rej){
+    b.disabled = true;
+    try { await post({action:'reject', token:TOKEN, id:b.dataset.rej}); toast('Возвращено в работу'); load() }
+    catch(err){ b.disabled=false; toast(err.message) }
+  }
+});
+
+/* закрытие */
+let closingId = null;
+function openClose(id){ closingId = id; $('#clDesc').value=''; cPhotos.clear(); $('#dlgClose').showModal() }
+$('#clCancel').onclick = () => $('#dlgClose').close();
+cPhotos.box.addEventListener('changed', () => { $('#clSend').disabled = cPhotos.get().length === 0 });
+$('#clSend').onclick = async () => {
+  const btn = $('#clSend'); btn.disabled = true; btn.textContent='Отправляю…';
+  try{
+    await post({ action:'done', token:TOKEN, id:closingId,
+                 doneDesc:$('#clDesc').value.trim(), photos:cPhotos.get() });
+    $('#dlgClose').close(); toast('Отправлено на приёмку'); load();
+  } catch(e){ toast(e.message || 'Нет связи — попробуйте ещё раз') }
+  btn.textContent='Отправить'; btn.disabled=false;
+};
+
+/* ---------- назначение и перенос даты ---------- */
+let dateId = null;
+function openDate(id, currentDue){
+  dateId = id;
+  const inp = $('#dtInput');
+  const today = new Date();
+  const max = new Date(Date.now() + 60*24*3600*1000);
+  inp.min = today.toISOString().slice(0,10);
+  inp.max = max.toISOString().slice(0,10);
+
+  const cur = parseRu(currentDue);
+  inp.value = cur ? cur.toISOString().slice(0,10) : '';
+  $('#dtTitle').textContent = cur ? 'Перенести дату' : 'Назначить дату';
+  $('#dlgDate').showModal();
+}
+$('#dtCancel').onclick = () => $('#dlgDate').close();
+$('#dtSend').onclick = async () => {
+  const val = $('#dtInput').value;
+  if (!val) { toast('Выберите дату'); return }
+  const btn = $('#dtSend'); btn.disabled = true; btn.textContent = 'Сохраняю…';
+  try {
+    await post({action:'setDate', token:TOKEN, id:dateId, date:val});
+    $('#dlgDate').close(); toast('Срок сохранён'); load();
+  } catch(e){ toast(e.message) }
+  btn.textContent = 'Сохранить'; btn.disabled = false;
+};
+
+/* ---------- вкладки ---------- */
+$('#tabNew').onclick = () => {
+  $('#tabNew').classList.add('on'); $('#tabList').classList.remove('on');
+  $('#viewNew').hidden = false; $('#viewList').hidden = true;
+};
+$('#tabList').onclick = () => {
+  $('#tabList').classList.add('on'); $('#tabNew').classList.remove('on');
+  $('#viewList').hidden = false; $('#viewNew').hidden = true;
+  load();
+};
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
