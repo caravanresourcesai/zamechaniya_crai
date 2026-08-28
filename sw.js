@@ -2,7 +2,7 @@
    v5: обновлён защищённый клиент; настройки и справочник
    берутся из сети, когда она есть. */
 
-const CACHE = 'zam-v7';
+const CACHE = 'zam-v8';
 const SHELL = ['./', 'index.html', 'otchet.html', 'sotrudniki.html', 'manifest.json'];
 const FRESH = ['config.js', 'objects.js'];
 
